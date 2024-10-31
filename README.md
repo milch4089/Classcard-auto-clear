@@ -1,1 +1,1 @@
-클래스카트 매크로 (Chrome Extension)
+클래스카드 매크로 (Chrome Extension)
