@@ -1,37 +1,39 @@
 let isClassCard = false;
-let btn = document.getElementById("btn");
-let title = document.getElementById("list-title");
-let sectionText = document.getElementById("section_num");
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     console.log(tabs[0].url.startsWith("https://www.classcard.net/set/"));
     isClassCard = tabs[0].url.startsWith("https://www.classcard.net/set/");
     if(isClassCard == true) {
         chrome.tabs.sendMessage(
-            tabs[0].id, {
-                action: "getinfo"
+            tabs[0].id, 
+            {action: "getinfo"}, 
+            (response) => {
+                $("#list-title").text(response[0]);
             }
         );
+        chrome.tabs.sendMessage(
+            tabs[0].id, 
+            {action: "chechRun"}, 
+            (response) => {
+                console.log(response)
+            }
+        );
+    }else{
+        
     }
 });
 
-btn.addEventListener("click", async () => {
-
+$("#btn").click(()=>{
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tab = tabs[0];
         chrome.tabs.sendMessage(
-            tab.id, {
-                action: "start"
-            }
+            tabs[0].id, {action: "start", start: $("#start").val(), end: $("#end").val()}
         );
     });
-});
+})
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.action == "sendinfo") {
-        console.log(request.message[0]);
-        title.innerText = request.message[0];
-        sectionText.innerText = request.message[1];
+
     }
 });
 

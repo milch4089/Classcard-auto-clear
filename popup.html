@@ -2,20 +2,15 @@
 <meta charset=utf-8>
 <head>
     <link rel="stylesheet" href="popup.css" />
+    <script src="js/ThirdParty/jquery-3.7.1.slim.min.js"></script>
 </head>
 <body>
     <p id="list-title"></p>
-    <fieldset>
-        <legend>암기 범위</legend>
-        <form>
-            <label>
-            <input type="radio" name="option" value="1">전체
-            </label>
-            <label>
-            <input type="radio" name="option" value="2" checked >학습구간별 (<span id="section_num">10</span>단어)
-            </label>
-        </form>
-    </fieldset>
+    <div>
+        <input type="number" placeholder="시작구간" id="start">
+        <input type="number" placeholder="종료구간" id="end">
+    </div>
+    
     <!-- <div><h2 id="text">현재 탭이<br>클래스카드가  아닙니다</h2></div> -->
 <button id="btn">test</button>
 <script src="js/popup.js"></script>
