@@ -1,0 +1,4 @@
+.btn-opt-start {
+    pointer-events: none;
+    display: none !important;
+}

@@ -1,50 +1,31 @@
-let isClassCard = false;
-
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    console.log(tabs[0].url.startsWith("https://www.classcard.net/set/"));
-    isClassCard = tabs[0].url.startsWith("https://www.classcard.net/set/");
-    if(isClassCard == true) {
+    if(tabs[0].status === "complete") {
         chrome.tabs.sendMessage(
             tabs[0].id, 
-            {action: "getinfo"}, 
+            {action: "getinfo", tabID: tabs[0].id}, 
             (response) => {
                 $("#list-title").text(response[0]);
             }
         );
-        chrome.tabs.sendMessage(
-            tabs[0].id, 
-            {action: "chechRun"}, 
+    }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab)=>{
+    if(changeInfo.status === "complete" && tab.url.startsWith("https://www.classcard.net/set/")){
+		chrome.tabs.sendMessage(
+            tabId, 
+            {action: "getinfo", tabID: tabId}, 
             (response) => {
-                console.log(response)
+                $("#list-title").text(response[0]);
             }
         );
-    }else{
-        
     }
 });
 
 $("#btn").click(()=>{
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(
-            tabs[0].id, {action: "start", start: $("#start").val(), end: $("#end").val()}
+            tabs[0].id, {action: "set", start: $("#start").val(), end: $("#end").val()}
         );
     });
 })
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if(request.action == "sendinfo") {
-
-    }
-});
-
-function test() {
-//     let text2 = document.getElementById("test1");
-//     let delay = 0;
-//     for(let i=0;i<11;i++) {
-//         delay += 800;
-//         setTimeout(() => {
-//         console.log(i);
-//         text2.innerText = i.toString();
-//        }, delay);
-//     }
-}
