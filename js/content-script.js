@@ -16,11 +16,17 @@ function getinfo() {
     return [title, section_num, script_json];
 }
 
+function clickEle(selector, delay) {
+    setTimeout(() => {
+        $(selector)[0].click()
+    }, delay);
+}
+
 function setMemorize(start_num, end_num) {
     console.log(start_num, end_num);
     $("#tab_set_section").children(`div:eq(${start_num-1})`).find("a:eq(2)")[0].click()
 }
 
 function startMemorize () {
-
+	clickEle("[class*=btn-opt-start]", 1000);
 }
