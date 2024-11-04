@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             console.log(tabId, request.tabID)            
             if(changeInfo.status === "complete" && tabId == request.tabID){
                 chrome.tabs.sendMessage(
-                    tabId, {action: "run"}
+                    tabId, {action: "run", start: request.start, end: request.end}
                 );
             }
             

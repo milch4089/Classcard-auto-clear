@@ -5,3 +5,6 @@ body {
 label {
     display: block;
 } 
+p {
+    width: 100%;
+}
