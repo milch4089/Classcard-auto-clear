@@ -156,7 +156,7 @@ function startMemorize(frist) {
                         $know_btn[0].click();
                         // chrome.runtime.sendMessage({action: "runningInfo", info: [count,]})
                         console.log("clear");
-                    }, 500);
+                    }, 50);
                 } 
 
                 else if (mutation.target == $known_count[0]) {
