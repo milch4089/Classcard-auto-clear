@@ -1,5 +1,4 @@
-let tab_id
-let isRunning = false
+let running_status = 0
 let info
 let clear_list = []
 let current_section
@@ -10,33 +9,40 @@ let $know_btn
 let $know_btn_box
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if(request.action === "getinfo") {
-        tab_id = request.tabID
-        sendResponse(getinfo());
-    }
-    if(request.action === "set") {
-        chrome.storage.session.get(["start", "end"], (result) => {
-            setMemorize(result.start, result.end);;
-        });
-    }
-    if(request.action === "run") {
-        chrome.storage.session.get(["clearList"], (result) => {
-            clear_list = result.clearList;
-        });
-        chrome.storage.session.get(["start", "end"], (result) => {
-            info = result;
 
-            $known_count = $(".known_count:eq(1)");
-            $total_count = $(".total_count");
+    switch (request.action) {
+        case "getinfo":
+            chrome.runtime.sendMessage( 
+                {action: "test", status: running_status}
+            );
+            sendResponse(getinfo());
+            break;
 
-            $know_btn = $(".btn-know-box > a");
-            $know_btn_box = $(".btn-know-box").parent();
-            startMemorize(true);
-        });
-        
-    }
-    if(request.action === "checkRun") {
-        sendResponse(isRunning)
+        case "set":
+            chrome.storage.session.get(["start", "end"], (result) => {
+                setMemorize(result.start, result.end);;
+            });
+            break;
+
+        case "run":
+            chrome.storage.session.get(["clearList"], (result) => {
+                clear_list = result.clearList;
+            });
+            chrome.storage.session.get(["start", "end"], (result) => {
+                info = result;
+    
+                $known_count = $(".known_count:eq(1)");
+                $total_count = $(".total_count");
+    
+                $know_btn = $(".btn-know-box > a");
+                $know_btn_box = $(".btn-know-box").parent();
+                startMemorize(true);
+            });    
+            break;
+            
+        case "checkRun":
+            sendResponse(running_status)
+            break;
     }
 });
 
@@ -63,24 +69,25 @@ function getinfo() {
             i = 0
             main_list.push(!section_words_list.includes(-1))
             section_words_list = []
-            console.log(2)
         }
         section_words_list.push(Number(item.memorize_known_yn))
         i++	
 
     });
 
-    console.log(script_json, main_list, typeof(script_json))
-    chrome.storage.session.set({"clearList": main_list});
+    chrome.storage.session.set({"clearList": main_list, "title": title});
     return title;
 }
 
 
-function setMemorize(start_num, end_num) {
+function setMemorize(start_num) {
     
-    isRunning = true;
+    running_status = 1;
     chrome.runtime.sendMessage( 
-        {action: "ready", tabID: tab_id, start: start_num, end: end_num}
+        {action: "ready"}
+    );
+    chrome.runtime.sendMessage( 
+        {action: "status", status: running_status}
     );
     // if( $(`.set-main:eq(${end_num-1}) .btn-memorize .cc.checked`).length == 1 ) {
     //     chrome.storage.session.set({end: info.end-1});
@@ -99,22 +106,10 @@ function checkNextSection(criterionSection) {
         }
 }
 
-function checkSection() {
-
-    let section_data = $("body script:eq(6)").html();
-    let section_num = section_data.charAt(section_data.indexOf("current_section")+18);
-    console.log(section_data);
-    console.log(Number(section_num), info.end, section_num);
-    if(Number(section_num) >= info.end ) {
-        return false;
-    } else {
-        return true;
-    }
-}
 function startMemorize(frist) {
     
     console.log("ok_run");
-    isRunning = true
+    running_status = 1;
     
     let time = 3
     let $start_btn = frist ? $(".btn-opt-start") : $(".btn-study-end-next-section2");
@@ -140,32 +135,27 @@ function startMemorize(frist) {
         let known_count = 0
 
         let target = $know_btn_box[0];
+
         $know_btn_box.attr("class", "study-bottom down");
-        
         $know_btn[0].click();
 
-        console.log("running2")
         let observer = new MutationObserver((mutations, _observer) => {
             mutations.forEach(mutation => {
                
                 if($know_btn_box.attr("class") === "study-bottom") {
-                    console.log("test1")
-                    console.log($known_count[0])
                     setTimeout(() => {
                         $know_btn_box.attr("class", "study-bottom down");
                         $know_btn[0].click();
                         // chrome.runtime.sendMessage({action: "runningInfo", info: [count,]})
                         console.log("clear");
-                    }, 500);
+                    }, 50);
                 } 
 
                 else if (mutation.target == $known_count[0]) {
                     if($known_count.text() != known_count) {
                         known_count = $known_count.text();
-                        console.log("test");
-
                         if ($known_count.text() == $total_count.text()) {
-                            console.log("testfinish");
+                            console.log("finish");
                             _observer.disconnect();
                             
                             setTimeout(() => {
@@ -173,10 +163,14 @@ function startMemorize(frist) {
                                 console.log(checkNextSection(current_section), info.end)
                                 if(next_section <= info.end) {
                                     startMemorize(false);
-                                    console.log("Go next")
+                                    console.log("Go next ", next_section)
                                     current_section = next_section;
                                 } else {
                                     console.log("fail")
+                                    running_status = 2;
+                                    chrome.runtime.sendMessage( 
+                                        {action: "status", status: running_status}
+                                    );
                                     return 0;
                                 }
                             }, 1000);
@@ -196,8 +190,4 @@ function startMemorize(frist) {
         observer.observe($known_count[0], config);
     }, 6000);
     
-}
-
-function test() {
-
 }

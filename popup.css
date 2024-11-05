@@ -1,10 +1,20 @@
 body {
     width: 230;
     height: 260;
+    margin: 0;
 }
 label {
     display: block;
-} 
-p {
+}
+
+.running-page, .finish-page, .main-page {
+    display: none;
+}
+
+.nav-bar {
+    display: flex;
+}
+
+.nav-bar button{
     width: 100%;
 }

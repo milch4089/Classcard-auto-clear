@@ -5,14 +5,31 @@
     <script src="js/ThirdParty/jquery-3.7.1.slim.min.js"></script>
 </head>
 <body>
-    <p id="list-title">loading...</p>
-    <div>
-        <input type="number" placeholder="시작구간" id="start">
-        <input type="number" placeholder="종료구간" id="end">
+    <div class="loading-page">
+        <p>LOADING.......</p>
+    </div>
+    <div class="main-page">
+        <div class="nav-bar">
+            <button>암기</button>
+            <button>리콜</button>
+        </div>
+        <p id="list-title">loading...</p>
+        <div>
+            <input type="number" placeholder="시작구간" id="start">
+            <input type="number" placeholder="종료구간" id="end">
+        </div>
+        <button id="btn">start</button>
+    </div>
+
+    <div class="running-page">
+        <p>암기 자동화가 실행 중 입니다. </p>
+    </div>
+
+    <div class="finish-page">
+        <p>암기 자동화가 종료되었습니다.</p>
     </div>
     
     <!-- <div><h2 id="text">현재 탭이<br>클래스카드가  아닙니다</h2></div> -->
-<button id="btn">start</button>
 <script src="js/popup.js"></script>
 </body>
 </html>

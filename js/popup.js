@@ -5,30 +5,64 @@ let info = {
     start: "",
     end: ""
 }
+let tab_id;
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if(tabs[0].status === "complete") {
-        chrome.tabs.sendMessage(
-            tabs[0].id, 
-            {action: "getinfo", tabID: tabs[0].id}, 
-            (response) => {
-                $("#list-title").text(response);
-                console.log(response)
-                info.title = response;
-            }
-        );
-    }
+    tab_id = tabs[0].id
+    setPopup(tabs[0])
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab)=>{
-    if(changeInfo.status === "complete" && tab.url.startsWith("https://www.classcard.net/set/")){
-		chrome.tabs.sendMessage(
-            tabId, 
-            {action: "getinfo", tabID: tabId}, 
+    setPopup(tab)
+});
+
+function setPopup(tab) {
+    if (tab.url.startsWith("https://www.classcard.net/set/")) {
+        if(tab.status === "complete"){
+            chrome.tabs.sendMessage(
+                tab.id, 
+                {action: "getinfo"}, 
+                (response) => {
+                    $("#list-title").text(response);
+                    $(".loading-page").css("display", "none")
+                    $(".main-page").css("display", "block")
+                    info.title = response;
+                }
+            );
+        }
+    } else if (tab.url.startsWith("https://www.classcard.net/Memorize/")) {
+        chrome.tabs.sendMessage(
+            tab.id, 
+            {action: "checkRun"}, 
             (response) => {
-                $("#list-title").text(response);
-                info.title = response;
+                if (response == 1) {
+                    console.log("1")
+                    $(".main-page").css("display", "none")
+                    $(".running-page").css("display", "block")
+                } else if (response == 2) {
+                    $(".running-page").css("display", "none")
+                    $(".main-page").css("display", "none")
+                    $(".finish-page").css("display", "block")
+                }
             }
         );
+    }
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+    switch (request.action) {
+        case "status":
+            if (sender.tab.id == tab_id) {
+                if (request.status == 1) {
+                    $(".main-page").css("display", "none")
+                    $(".running-page").css("display", "block")
+                } else if (request.status == 2) {
+                    $(".running-page").css("display", "none")
+                    $(".main-page").css("display", "none")
+                    $(".finish-page").css("display", "block")
+                }
+            }
+            break;
     }
 });
 

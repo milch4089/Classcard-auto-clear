@@ -9,18 +9,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     target: { tabId: tab.id }
                 });
             }
-
-            console.log(tabId, request.tabID)            
-            if(changeInfo.status === "complete" && tabId == request.tabID){
+           
+            if(changeInfo.status === "complete" && tabId == sender.tab.id){
                 chrome.tabs.sendMessage(
-                    tabId, {action: "run", start: request.start, end: request.end}
+                    tabId, {action: "run"}
                 );
             }
             
             if(changeInfo.status === "complete") {
-                setTimeout(() => {
-                    chrome.tabs.onUpdated.removeListener(updateListener);
-                }, 1000);
+                chrome.tabs.onUpdated.removeListener(updateListener);
             }
 
         });
