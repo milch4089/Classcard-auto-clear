@@ -89,7 +89,7 @@ function setMemorize(start_num) {
     chrome.runtime.sendMessage( 
         {action: "status", status: running_status}
     );
-    // if( $(`.set-main:eq(${end_num-1}) .btn-memorize .cc.checked`).length == 1 ) {
+    // if(test $(`.set-main:eq(${end_num-1}) .btn-memorize .cc.checked`).length == 1 ) {
     //     chrome.storage.session.set({end: info.end-1});
     // }
     $("#tab_set_section").children(`div:eq(${start_num-1})`).find("a:eq(2)")[0].click();
