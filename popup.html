@@ -9,16 +9,26 @@
         <p>LOADING.......</p>
     </div>
     <div class="main-page">
+        <div class="title-box"><p id="title">....</p></div>
+        <div class="setting-box">
+            <!-- <p>구간 설정</p> -->
+            <div class="input-wrap">
+                <p>시작구간</p>
+                <input type="number" placeholder="" id="start">
+            </div>
+            <div class="input-wrap">
+                <p>종료구간</p>
+                <input type="number" placeholder="" id="end">
+            </div>
+            <div class="input-wrap delay-set">
+                <p>딜레이 설정</p>
+                <input type="number" value="0" placeholder="" id="end">
+            </div>
+        </div>
         <div class="nav-bar">
-            <button>암기</button>
-            <button>리콜</button>
+            <button id="memo-btn">암기</button>
+            <button id="recall-btn">리콜</button>
         </div>
-        <p id="list-title">loading...</p>
-        <div>
-            <input type="number" placeholder="시작구간" id="start">
-            <input type="number" placeholder="종료구간" id="end">
-        </div>
-        <button id="btn">start</button>
     </div>
 
     <div class="running-page">
@@ -28,8 +38,10 @@
     <div class="finish-page">
         <p>암기 자동화가 종료되었습니다.</p>
     </div>
-    
-    <!-- <div><h2 id="text">현재 탭이<br>클래스카드가  아닙니다</h2></div> -->
+
+    <div class="error-page">
+        <p>클래스카드가 아닙니다.</p>
+    </div>
 <script src="js/popup.js"></script>
 </body>
 </html>

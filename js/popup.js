@@ -16,36 +16,41 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab)=>{
 });
 
 function setPopup(tab) {
-    if (tab.url.startsWith("https://www.classcard.net/set/")) {
-        if(tab.status === "complete"){
+    if(tab.id == tab_id) {
+        if (tab.url.startsWith("https://www.classcard.net/set/")) {
+            if(tab.status === "complete"){
+                chrome.tabs.sendMessage(
+                    tab.id, 
+                    {action: "getinfo"}, 
+                    (response) => {
+                        $("#title").text(response);
+                        $(".loading-page").css("display", "none")
+                        $(".main-page").css("display", "block")
+                        info.title = response;
+                    }
+                );
+            }
+        } else if (tab.url.startsWith("https://www.classcard.net/Memorize/")) {
             chrome.tabs.sendMessage(
                 tab.id, 
-                {action: "getinfo"}, 
+                {action: "checkRun"}, 
                 (response) => {
-                    $("#list-title").text(response);
-                    $(".loading-page").css("display", "none")
-                    $(".main-page").css("display", "block")
-                    info.title = response;
+                    if (response == 1) {
+                        console.log("1")
+                        $(".main-page").css("display", "none")
+                        $(".running-page").css("display", "block")
+                    } else if (response == 2) {
+                        $(".running-page").css("display", "none")
+                        $(".main-page").css("display", "none")
+                        $(".finish-page").css("display", "block")
+                    }
                 }
             );
+        } else {
+                $(".loading-page").css("display", "none")
+                $(".error-page").css("display", "block")
+            } 
         }
-    } else if (tab.url.startsWith("https://www.classcard.net/Memorize/")) {
-        chrome.tabs.sendMessage(
-            tab.id, 
-            {action: "checkRun"}, 
-            (response) => {
-                if (response == 1) {
-                    console.log("1")
-                    $(".main-page").css("display", "none")
-                    $(".running-page").css("display", "block")
-                } else if (response == 2) {
-                    $(".running-page").css("display", "none")
-                    $(".main-page").css("display", "none")
-                    $(".finish-page").css("display", "block")
-                }
-            }
-        );
-    }
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -56,9 +61,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 if (request.status == 1) {
                     $(".main-page").css("display", "none")
                     $(".running-page").css("display", "block")
+                    $(".loading-page").css("display", "none")
                 } else if (request.status == 2) {
                     $(".running-page").css("display", "none")
                     $(".main-page").css("display", "none")
+                    $(".loading-page").css("display", "none")
                     $(".finish-page").css("display", "block")
                 }
             }
@@ -66,7 +73,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-$("#btn").click(()=>{
+$("#memo-btn").click(()=>{
 
     info.start = Number($("#start").val());
     info.end = Number($("#end").val());

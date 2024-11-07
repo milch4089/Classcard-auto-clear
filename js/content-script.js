@@ -86,9 +86,6 @@ function setMemorize(start_num) {
     chrome.runtime.sendMessage( 
         {action: "ready"}
     );
-    chrome.runtime.sendMessage( 
-        {action: "status", status: running_status}
-    );
     // if(test $(`.set-main:eq(${end_num-1}) .btn-memorize .cc.checked`).length == 1 ) {
     //     chrome.storage.session.set({end: info.end-1});
     // }
@@ -110,6 +107,9 @@ function startMemorize(frist) {
     
     console.log("ok_run");
     running_status = 1;
+    chrome.runtime.sendMessage( 
+        {action: "status", status: running_status}
+    );
     
     let time = 3
     let $start_btn = frist ? $(".btn-opt-start") : $(".btn-study-end-next-section2");
