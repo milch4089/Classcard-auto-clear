@@ -5,42 +5,45 @@
     <script src="js/ThirdParty/jquery-3.7.1.slim.min.js"></script>
 </head>
 <body>
-    <div class="loading-page">
-        <p>LOADING.......</p>
+    <div class="loading-page pages">
+        <p>LOADING...</p>
     </div>
+    <div class="running-page pages">
+        <p>암기 자동화가 실행 중 입니다. </p>
+    </div>
+
+    <div class="finish-page pages">
+        <p>암기 자동화가 종료되었습니다.</p>
+    </div>
+
+    <div class="error-page pages">
+        <p>클래스카드로 이동해 주세요.</p>
+    </div>
+
     <div class="main-page">
         <div class="title-box"><p id="title">....</p></div>
-        <div class="setting-box">
+
+        <div class="info-box">
             <!-- <p>구간 설정</p> -->
-            <div class="input-wrap">
-                <p>시작구간</p>
-                <input type="number" placeholder="" id="start">
-            </div>
+            <p><span id="words-num">-</span>단어</p>
+            <p>|</p>
+            <p><span id="sections-num">-</span>구간</p>
+        </div>
+
+        <div class="setting-box">
             <div class="input-wrap">
                 <p>종료구간</p>
                 <input type="number" placeholder="" id="end">
             </div>
             <div class="input-wrap delay-set">
-                <p>딜레이 설정</p>
-                <input type="number" value="0" placeholder="" id="end">
+                <p>딜레이 (ms)</p>
+                <input type="number" value="0" placeholder="" id="delay">
             </div>
         </div>
         <div class="nav-bar">
             <button id="memo-btn">암기</button>
-            <button id="recall-btn">리콜</button>
+            <button disabled="disabled" id="recall-btn">리콜</button>
         </div>
-    </div>
-
-    <div class="running-page">
-        <p>암기 자동화가 실행 중 입니다. </p>
-    </div>
-
-    <div class="finish-page">
-        <p>암기 자동화가 종료되었습니다.</p>
-    </div>
-
-    <div class="error-page">
-        <p>클래스카드가 아닙니다.</p>
     </div>
 <script src="js/popup.js"></script>
 </body>
