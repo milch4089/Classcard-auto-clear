@@ -39,7 +39,7 @@ function setPopup(tab) {
                         $("#words-num").text(response[1])
                         $("#sections-num").text(response[2])
                         $memorize_btn.attr("disabled", false);
-                        $recall_btn.attr("disabled", false);
+                        // $recall_btn.attr("disabled", false);
                     } catch {
                         $info_text.css("display", "none");
                         $state_text.css("display", "block");
@@ -49,7 +49,6 @@ function setPopup(tab) {
                 }
             );
         } else if (tab.url.startsWith(MEMORIZE_URL)) {
-            // $(".error-page").css("display", "flex")
             chrome.tabs.sendMessage(
                 tab.id,
                 { action: "checkProcessState" },
