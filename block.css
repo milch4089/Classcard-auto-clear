@@ -1,4 +1,4 @@
-.btn-opt-start {
+.btn-opt-start, .btn-study-end-next-section2{
     pointer-events: none;
     display: none !important;
 }

@@ -2,32 +2,22 @@
 <meta charset=utf-8>
 <head>
     <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="js/ThirdParty/jquery-3.7.1.slim.min.js"></script>
 </head>
 <body>
-    <div class="loading-page pages">
-        <p>LOADING...</p>
-    </div>
-    <div class="running-page pages">
-        <p>암기 자동화가 실행 중 입니다. </p>
-    </div>
-
-    <div class="finish-page pages">
-        <p>암기 자동화가 종료되었습니다.</p>
-    </div>
-
     <div class="error-page pages">
-        <p>클래스카드로 이동해 주세요.</p>
+        <p></p>
     </div>
 
     <div class="main-page">
-        <div class="title-box"><p id="title">....</p></div>
-
+        <div class="title-box"><p id="title">-</p></div>
         <div class="info-box">
             <!-- <p>구간 설정</p> -->
-            <p><span id="words-num">-</span>단어</p>
-            <p>|</p>
-            <p><span id="sections-num">-</span>구간</p>
+            <p id="state-text"></p>
+            <p class="info-text"><span id="words-num">-</span>단어</p>
+            <p class="info-text">|</p>
+            <p class="info-text"><span id="sections-num">-</span>구간</p>
         </div>
 
         <div class="setting-box">
@@ -40,8 +30,8 @@
                 <input type="number" value="0" placeholder="" id="delay">
             </div>
         </div>
-        <div class="nav-bar">
-            <button id="memo-btn">암기</button>
+        <div class="btn-box">
+            <button disabled="disabled" id="memo-btn">암기</button>
             <button disabled="disabled" id="recall-btn">리콜</button>
         </div>
     </div>

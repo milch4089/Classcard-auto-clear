@@ -12,9 +12,7 @@
      "run_at": "document_start"
    }],
     "permissions": ["storage","scripting","tabs"],
-    "host_permissions": [
-    "https://www.classcard.net/*"
-  ],
+    "host_permissions": ["https://www.classcard.net/*"],
   "action": {    
       "default_icon": "cat_img.png",    
       "default_popup": "popup.html"  
