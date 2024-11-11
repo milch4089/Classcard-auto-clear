@@ -23,8 +23,8 @@ input::-webkit-inner-spin-button {
 .title-box {
     padding: 6px;
     padding-left: 9px;
-    padding-right: 7px;
-    width: 100%;
+    padding-right: 11px;
+    width: auto;
     background-color: #8bcb47;
 }
 
@@ -32,7 +32,8 @@ input::-webkit-inner-spin-button {
     margin: 0;
     /* margin-left: 4px; */
     font-size: 17px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
+    word-spacing: -1.4px;
     font-weight: 500;
     /* color: rgb(242, 242, 242); */
     color: rgb(255, 255, 255);
