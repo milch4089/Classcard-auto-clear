@@ -67,13 +67,6 @@ function setPopup(tab) {
                             $state_text.text(STATE_MESSAGE.finish)
                             break;
                     }
-                    // if (response == 1) {
-                    //     console.log("1")
-                    //     $(".running-page").css("display", "flex")
-                    // } else if (response == 2) {
-                    //     $(".running-page").css("display", "none")
-                    //     $(".finish-page").css("display", "flex")
-                    // }
                 }
             );
         } else {

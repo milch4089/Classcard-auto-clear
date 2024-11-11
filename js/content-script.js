@@ -15,6 +15,7 @@ let $know_btn_box
 
 let $study_box;
 let $answer_btn;
+let $card_cover;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
@@ -68,12 +69,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                 $study_box = $(".study-content > .study-body")
                 $know_btn = $(".btn-know-box > a");
-                $know_btn_box = $(".btn-next-box").parent();
+                // $know_btn_box = $(".btn-next-box").parent();
 
-                // startRecall(true);
-                setTimeout(() => {
-                    findRecallAnswer("one");
-                }, 5000);
+                startRecall(true);
+                // setTimeout(() => {
+                //     findRecallAnswer("one");
+                // }, 5000);
             });
             break;
 
@@ -238,12 +239,13 @@ function startMemorize(frist) {
 function findRecallAnswer(word) {
     words_json.forEach((item, index) => {
         if(item.front === word) {
-            console.log(item.back)
             let $answer_btns = $study_box.children(".CardItem.current.showing").children(".card-quest");
-            let text;
             for(let i=0;i<$answer_btns.children().length-1;i++) {
-                text = $answer_btns.children(`:eq(${i})`).children(".card-quest-list").children()
-                console.log(text.text(), $answer_btns)
+                $answer_btn = $answer_btns.children(`:eq(${i})`);
+                if ($answer_btn.children(".card-quest-list").children().text() === item.back) {
+                    console.log($answer_btn)
+                    $answer_btn.trigger("click");
+                }
             }
         }
     });
@@ -258,48 +260,21 @@ function startRecall(frist) {
     setTimeout(() => {
         let known_count = 0
 
-        let target = $know_btn_box[0];
-
-        // $answer_btn = $study_box.children(".CardItem.current.showing").children(".card-quest").children(":eq(0)")
-        $know_btn_box.attr("class", "study-bottom down");
-        $answer_btn.trigger("click");
+        let target;
+        $card_cover = $study_box.children(".CardItem.next").children(".card-cover");
+        // $card_cover.attr("class" , "card-cover");
+        console.log($card_cover);
+        target = $card_cover[0];
+        // findRecallAnswer($study_box.find(".normal-body").text())
 
         let observer = new MutationObserver((mutations, _observer) => {
             mutations.forEach(mutation => {
-
-                if ($know_btn_box.attr("class") === "study-bottom") {
+                console.log(2, "!!!", mutation)
+                if (mutation.oldValue === "card-cover") {
                     setTimeout(() => {
-                        $know_btn_box.attr("class", "study-bottom down");
-                        $answer_btn[0].click();
-                        console.log("clear");
+                        findRecallAnswer($study_box.find(".normal-body").text())
+                        // console.log(2, "!!!", mutation)
                     }, 20 + delay);
-                }
-
-                else if (mutation.target == $known_count[0]) {
-                    if ($known_count.text() != known_count) {
-                        known_count = $known_count.text();
-                        if ($known_count.text() == $total_count.text()) {
-                            console.log("finish");
-                            _observer.disconnect();
-
-                            setTimeout(() => {
-                                let next_section = checkNextSection(current_section);
-                                console.log(checkNextSection(current_section), last_sectsion)
-                                if (next_section <= last_sectsion) {
-                                    startMemorize(false);
-                                    console.log("Go next ", next_section)
-                                    current_section = next_section;
-                                } else {
-                                    console.log("fail")
-                                    process_state = 2;
-                                    chrome.runtime.sendMessage(
-                                        { action: "get_state", state: process_state }
-                                    );
-                                    return 0;
-                                }
-                            }, 1000);
-                        }
-                    }
                 }
             });
         });
@@ -311,7 +286,7 @@ function startRecall(frist) {
         };
 
         observer.observe(target, config);
-        observer.observe($known_count[0], config);
+        // observer.observe($known_count[0], config);
     }, 6000);
 
 }
