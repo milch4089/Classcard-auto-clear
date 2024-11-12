@@ -7,6 +7,7 @@ let clear_list = []
 let current_section
 let delay;
 let words_json;
+let title;
 
 let $known_count
 let $total_count
@@ -26,7 +27,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case "setMemorize":
-            setMemorize();
+            chrome.storage.session.get(["last"], (result) => {
+                last_sectsion = result.last;
+                setMemorize();
+            });
             break;
 
         case "setRecall":
@@ -34,14 +38,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case "runMemorize":
-            chrome.runtime.sendMessage(
-                { action: "getState", state: process_state }
-            );
-            chrome.storage.session.get(["last", "frist", "clearList", "delay"], (result) => {
+            chrome.storage.session.get(["last", "frist", "clearList", "delay", "title"], (result) => {
                 last_sectsion = result.last;
                 frist_section = result.frist;
                 clear_list = result.clearList;
                 delay = result.delay
+                title = result.title
 
                 $known_count = $(".known_count:eq(1)");
                 $total_count = $(".total_count");
@@ -50,19 +52,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 $know_btn_box = $(".btn-know-box").parent();
 
                 startMemorize(true);
+
+                chrome.runtime.sendMessage(
+                    { action: "getState", state: process_state, _title: title }
+                );
             });
             break;
 
         case "runRecall":
             chrome.runtime.sendMessage(
-                { action: "getState", state: process_state }
+                { action: "getState", state: process_state, _title: title }
             );
-            chrome.storage.session.get(["last", "frist", "clearList", "delay", "wordsJson"], (result) => {
+            chrome.storage.session.get(["last", "frist", "clearList", "delay", "wordsJson", "title"], (result) => {
                 last_sectsion = result.last;
                 frist_section = result.frist;
                 clear_list = result.clearList;
-                delay = result.delay
-                words_json = result.wordsJson
+                delay = result.delay;
+                words_json = result.wordsJson;
+                title = result.title;
 
                 $known_count = $(".known_count:eq(1)");
                 $total_count = $(".total_count");
@@ -79,7 +86,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case "checkProcessState":
-            sendResponse(process_state)
+            chrome.storage.session.get(["title", "last"], (result) => {
+                title = result.title;
+                last_sectsion = result.last;
+            });
+            sendResponse([process_state, title, last_sectsion]);
             break;
 
         case "stateHandle":
@@ -92,7 +103,7 @@ function getinfo() {
 
     let script_text = $("body script:eq(4)").html();
     words_json = JSON.parse(script_text.substring(18, script_text.indexOf("var first_study_data") - 2));
-    let title = $('[property="og:title"]').attr("content");
+    title = $('[property="og:title"]').attr("content");
     let words_num = words_json.length
     let size = Number($(".str_view_type:eq(0)").text().substring(0, $(".str_view_type:eq(0)").text().length - 4))
 
@@ -129,7 +140,13 @@ function setMemorize() {
     );
     let first_index = clear_list.indexOf(false)
     chrome.storage.session.set({ frist: first_index + 1 });
-    $("#tab_set_section").children(`div:eq(${first_index})`).find("a:eq(2)")[0].click();
+    if (first_index+1 > last_sectsion) {
+        chrome.runtime.sendMessage(
+            { action: "error", code: 0 }
+        );
+    } else {
+        $("#tab_set_section").children(`div:eq(${first_index})`).find("a:eq(2)")[0].click();
+    }
 }
 
 function setRecall() {

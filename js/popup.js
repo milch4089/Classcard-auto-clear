@@ -7,9 +7,12 @@ const ERROR_MESSAGE = {
     not_login: "로그인이 필요합니다", 
     not_classCard: "단어를 찾을 수 없습니다", 
     not_wordSet: "단어세트만 가능합니다", 
-    not_findInfo: "세트정보를 불러올 수 없습니다"
+    not_findInfo: "세트정보를 불러올 수 없습니다.</br>새로고침을 해주세요.",
+    wrong_endSection: "입력한 종료구간이 존재하지 않습니다",
+    cleared_already: "이미 암기가 완료된 구간들 입니다"
 }
 let tab_id;
+let sections_num;
 let $title = $("#title");
 let $state_text = $("#state-text");
 let $memorize_btn = $("#memo-btn");
@@ -26,6 +29,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     setPopup(tab)
 });
 
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => { 
+    console.log(msg); 
+    sendResponse(); 
+  });
+
 function setPopup(tab) {
     if (tab.id == tab_id && tab.status === "complete") {
         if (tab.url.startsWith(SET_URL)) {
@@ -41,10 +49,8 @@ function setPopup(tab) {
                         $memorize_btn.attr("disabled", false);
                         // $recall_btn.attr("disabled", false);
                     } catch {
-                        $info_text.css("display", "none");
-                        $state_text.css("display", "block");
-                        $input.attr("disabled", true);
-                        $state_text.text(ERROR_MESSAGE.not_findInfo)
+                        showStateText(ERROR_MESSAGE.not_findInfo);
+                        return 0;
                     }
                 }
             );
@@ -53,49 +59,74 @@ function setPopup(tab) {
                 tab.id,
                 { action: "checkProcessState" },
                 (response) => {
-                    $info_text.css("display", "none");
-                    $state_text.css("display", "block");
-                    $input.attr("disabled", true);
-                    switch (response) {
+                    console.log(response, " !!!")
+                    switch (response[0]) {
                         case 0:
-                            $state_text.text(ERROR_MESSAGE.not_classCard)
+                            showStateText(ERROR_MESSAGE.not_classCard)
                             break;
                         case 1:
-                            $state_text.text(STATE_MESSAGE.run)
+                            showStateText(STATE_MESSAGE.run)
+                            $title.text(response[1]);
                             break;
                         case 2:
-                            $state_text.text(STATE_MESSAGE.finish)
+                            showStateText(STATE_MESSAGE.finish)
+                            $title.text(response[1]);
                             break;
                     }
                 }
             );
         } else {
-            $info_text.css("display", "none");
-            $state_text.css("display", "block");
-            $input.attr("disabled", true);
-            $state_text.text(ERROR_MESSAGE.not_classCard)
+            showStateText(ERROR_MESSAGE.not_classCard)
         }
     }
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "getState" && sender.tab.id == tab_id) {
-        $info_text.css("display", "none");
-        $state_text.css("display", "block");
-        $input.attr("disabled", true);
-        switch (request.action) {
+        switch (request.state) {
             case 1:
-                $state_text.text(STATE_MESSAGE.run)
+                showStateText(STATE_MESSAGE.run)
+                $title.text(request._title);
                 break;
             case 2:
-                $state_text.text(STATE_MESSAGE.finish)
+                showStateText(STATE_MESSAGE.finish)
+                $title.text(request._title);
+                break;
+        }
+    }
+    if (request.action === "error" && sender.tab.id == tab_id) {
+        switch (request.code) {
+            case 0:
+                showStateText(ERROR_MESSAGE.cleared_already, 2000)
                 break;
         }
     }
 });
 
+function showStateText(msg, unblock_time=0) {
+    $info_text.css("display", "none");
+    $state_text.css("display", "block");
+    $input.attr("disabled", true);
+    $state_text.html(msg)
+    if (unblock_time !=0) {
+        setTimeout(() => {
+            $info_text.css("display", "block");
+            $state_text.css("display", "none");
+            $input.attr("disabled", false);
+
+            // $recall_btn.attr("disabled", false);
+            $memorize_btn.attr("disabled", false);
+
+        }, unblock_time);
+    }
+}
+
 $memorize_btn.click(() => {
 
+    $memorize_btn.attr("disabled", true);
+    if (Number($("#end").val()) > sections_num) {
+
+    }
     chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -108,6 +139,7 @@ $memorize_btn.click(() => {
 
 $recall_btn.click(() => {
 
+    $recall_btn.attr("disabled", true);
     chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

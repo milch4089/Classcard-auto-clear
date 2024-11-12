@@ -2,7 +2,7 @@
 
 body {
     font-family: "Pretendard";
-    width: 230;
+    width: 250;
     margin: 0;
     background-color: #fcfcfc;
 }
@@ -21,7 +21,7 @@ input::-webkit-inner-spin-button {
 }
 
 .title-box {
-    padding: 6px;
+    padding: 8px;
     padding-left: 9px;
     padding-right: 11px;
     width: auto;
@@ -31,7 +31,7 @@ input::-webkit-inner-spin-button {
 #title {
     margin: 0;
     /* margin-left: 4px; */
-    font-size: 17px;
+    font-size: 18px;
     letter-spacing: 0.5px;
     word-spacing: -1.4px;
     font-weight: 500;
@@ -51,15 +51,15 @@ input::-webkit-inner-spin-button {
     border-radius: 5px;
     border-width: 1px;
     border-color: #c9c9c9;
-    margin: 15px 15px 10px 15px;
-    padding: 7px 14px 7px 14px;
+    margin: 16px 15px 18px 15px;
+    padding: 8px 14px 8px 14px;
     box-shadow: 2px 2px 5px rgb(193, 193, 193);
 }
 
 .info-box p, span {
     font-weight:500;
-    font-size: 12px;
-    color: #121212;
+    font-size: 13px;
+    color: #181818;
     margin: 0;
     height: min-content;
 }
@@ -76,7 +76,7 @@ input::-webkit-inner-spin-button {
     border-width: 1px;
     border-color: #c9c9c9;
     margin: 15px 15px 10px 15px;
-    padding: 10px 14px 10px 14px;
+    padding: 16px 16px 16px 16px;
     box-shadow: 2px 2px 5px rgb(193, 193, 193);
 }
 
@@ -108,8 +108,8 @@ input:disabled {
 
 .setting-box p {
     font-weight: 500;
-    font-size: 13px;
-    color: #3d3d3d;
+    font-size: 14px;
+    color: #3b3b3b;
     margin: 0;
     height: min-content;
 }
@@ -124,7 +124,7 @@ input:disabled {
 }
 
 .btn-box button{
-    height: 25px;
+    height: 30px;
     width: 100%;
     color: white;
     border-color: #78d024;
@@ -148,10 +148,10 @@ input:disabled {
 }
 
 #memo-btn {
-    margin: 10px 5px 10px 10px;
+    margin: 10px 7px 10px 12px;
 }
 #recall-btn {
-    margin: 10px 10px 10px 5px;
+    margin: 10px 12px 10px 7px;
 }
 
 .loading-page {
