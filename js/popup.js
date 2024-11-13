@@ -9,7 +9,8 @@ const ERROR_MESSAGE = {
     not_wordSet: "단어세트만 가능합니다", 
     not_findInfo: "세트정보를 불러올 수 없습니다.</br>새로고침을 해주세요.",
     wrong_endSection: "입력한 종료구간이 존재하지 않습니다",
-    cleared_already: "이미 암기가 완료된 구간들 입니다"
+    cleared_already: "이미 암기가 완료된 구간들 입니다",
+    exceed_maxSection: "종료구간이 마지막 구간보다 큽니다"
 }
 let tab_id;
 let sections_num;
@@ -43,13 +44,16 @@ function setPopup(tab) {
                 { action: "getInfo" },
                 (response) => {
                     try {
-                        $title.text(response[0]);
-                        $("#words-num").text(response[1])
-                        $("#sections-num").text(response[2])
-                        $memorize_btn.attr("disabled", false);
-                        // $recall_btn.attr("disabled", false);
+                        if (response != "error") {
+                            $title.text(response[0]);
+                            $("#words-num").text(response[1])
+                            $("#sections-num").text(response[2])
+                            sections_num = response[2]
+                            $memorize_btn.attr("disabled", false);
+                            // $recall_btn.attr("disabled", false);
+                        }
                     } catch {
-                        showStateText(ERROR_MESSAGE.not_findInfo);
+                        // showStateText(ERROR_MESSAGE.not_findInfo);
                         return 0;
                     }
                 }
@@ -99,6 +103,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             case 0:
                 showStateText(ERROR_MESSAGE.cleared_already, 2000)
                 break;
+
+            case 1:
+                showStateText(ERROR_MESSAGE.not_login);
+                break;
         }
     }
 });
@@ -125,15 +133,16 @@ $memorize_btn.click(() => {
 
     $memorize_btn.attr("disabled", true);
     if (Number($("#end").val()) > sections_num) {
+        showStateText(ERROR_MESSAGE.exceed_maxSection, 2400)
+    } else {
+        chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
 
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(
+                tabs[0].id, { action: "setMemorize" }
+            );
+        });
     }
-    chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(
-            tabs[0].id, { action: "setMemorize" }
-        );
-    });
 
 });
 

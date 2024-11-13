@@ -22,8 +22,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     switch (request.action) {
         case "getInfo":
-            console.log();
-            sendResponse(getinfo());
+
+            let login_text = $("body script:eq(1)").html();
+            let is_login = login_text.substring(16, login_text.indexOf("var is_login") + 19)
+        
+            console.log(is_login)
+            if (is_login === "true") {
+                sendResponse(getinfo());
+            } else {
+                chrome.runtime.sendMessage(
+                    { action: "error", code: 1 }
+                );
+                sendResponse("error");
+            }
             break;
 
         case "setMemorize":
@@ -107,7 +118,6 @@ function getinfo() {
     let words_num = words_json.length
     let size = Number($(".str_view_type:eq(0)").text().substring(0, $(".str_view_type:eq(0)").text().length - 4))
 
-
     let section_words_list = []
     let main_list = []
 
@@ -173,6 +183,8 @@ function countDown(frist) {
     let _time = countdown_time;
     let $start_btn = frist ? $(".btn-opt-start") : $(".btn-study-end-next-section2");
     let text = $start_btn.text();
+
+    
     let count_down = setInterval(() => {
         $start_btn.attr("style", "display: block !important");
         $start_btn.text(_time);
