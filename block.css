@@ -1,4 +1,4 @@
-.btn-opt-start, .btn-study-end-next-section2{
+.btn-opt-start, .btn-study-end-next-section2, .btn-next-box > div, .btn-down-cover-box, .study-bottom .btn-text > div, .btn-short-change-next {
     pointer-events: none;
     display: none !important;
 }

@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         chrome.tabs.onUpdated.addListener(function updateListener(tabId, changeInfo, tab) {
             console.log(changeInfo)
             if (changeInfo.title && tabId == sender.tab.id) {
-                if (tab.url.startsWith(MEMORIZE_URL)) {
+                if (tab.url.startsWith(MEMORIZE_URL)||tab.url.startsWith(RECALL_URL)) {
                     chrome.scripting.insertCSS({
                         files: ["block.css"],
                         target: { tabId: tab.id }

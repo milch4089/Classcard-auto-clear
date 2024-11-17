@@ -1,22 +1,15 @@
-const countdown_time = 3
+const countdown_time = 3;
 
-let process_state = 0
-let frist_section
-let last_sectsion
-let clear_list = []
-let current_section
-let delay;
-let words_json;
-let title;
+let process_state = 0;
+let frist_section, last_sectsion;
+let current_section, delay, words_json, title;
 
-let $known_count
-let $total_count
-let $know_btn
-let $know_btn_box
+let clear_list = [];
+let main_list_M = [];
+let main_list_R = [];
 
-let $study_box;
-let $answer_btn;
-let $card_cover;
+let $known_count, $total_count, $know_btn, $know_btn_box;
+let $study_box, $answer_btn, $card_current;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
@@ -40,19 +33,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case "setMemorize":
             chrome.storage.session.get(["last"], (result) => {
                 last_sectsion = result.last;
+                clear_list = main_list_M;
                 setMemorize();
             });
             break;
 
         case "setRecall":
-            setRecall();
+            chrome.storage.session.get(["last"], (result) => {
+                last_sectsion = result.last;
+                clear_list = main_list_R;
+                setRecall();
+            });
             break;
 
         case "runMemorize":
-            chrome.storage.session.get(["last", "frist", "clearList", "delay", "title"], (result) => {
+            chrome.storage.session.get(["last", "frist", "clearList_M", "delay", "title"], (result) => {
                 last_sectsion = result.last;
                 frist_section = result.frist;
-                clear_list = result.clearList;
+                clear_list = result.clearList_M;
                 delay = result.delay
                 title = result.title
 
@@ -71,13 +69,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case "runRecall":
-            chrome.runtime.sendMessage(
-                { action: "getState", state: process_state, _title: title }
-            );
-            chrome.storage.session.get(["last", "frist", "clearList", "delay", "wordsJson", "title"], (result) => {
+            chrome.storage.session.get(["last", "frist", "clearList_R", "delay", "wordsJson", "title"], (result) => {
                 last_sectsion = result.last;
                 frist_section = result.frist;
-                clear_list = result.clearList;
+                clear_list = result.clearList_R;
+                console.debug(clear_list, result.clearList_R)
                 delay = result.delay;
                 words_json = result.wordsJson;
                 title = result.title;
@@ -87,21 +83,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                 $study_box = $(".study-content > .study-body")
                 $know_btn = $(".btn-know-box > a");
-                // $know_btn_box = $(".btn-next-box").parent();
 
                 startRecall(true);
-                // setTimeout(() => {
-                //     findRecallAnswer("one");
-                // }, 5000);
+                chrome.runtime.sendMessage(
+                    { action: "getState", state: process_state, _title: title }
+                );
             });
             break;
 
         case "checkProcessState":
-            chrome.storage.session.get(["title", "last"], (result) => {
-                title = result.title;
-                last_sectsion = result.last;
-            });
-            sendResponse([process_state, title, last_sectsion]);
+            sendResponse(process_state);
             break;
 
         case "stateHandle":
@@ -118,8 +109,11 @@ function getinfo() {
     let words_num = words_json.length
     let size = Number($(".str_view_type:eq(0)").text().substring(0, $(".str_view_type:eq(0)").text().length - 4))
 
-    let section_words_list = []
-    let main_list = []
+    let section_words_list_M = []
+    main_list_M = []
+
+    let section_words_list_R = []
+    main_list_R = []
 
     let i = 0
     let data_len = words_json.length
@@ -127,27 +121,29 @@ function getinfo() {
     words_json.forEach((item, index) => {
 
         if (index + 1 == data_len) {
-            main_list.push(!section_words_list.includes(-1))
+            main_list_M.push(!(section_words_list_M.includes(-1)||section_words_list_M.includes(0)));
+            main_list_R.push(!(section_words_list_R.includes(-1)||section_words_list_R.includes(0)));
         } else if (i >= size) {
             i = 0
-            main_list.push(!section_words_list.includes(-1))
-            section_words_list = []
+            main_list_M.push(!(section_words_list_M.includes(-1)||section_words_list_M.includes(0)));
+            main_list_R.push(!(section_words_list_R.includes(-1)||section_words_list_R.includes(0)));
+            section_words_list_M = []
+            section_words_list_R = []
         }
-        section_words_list.push(Number(item.memorize_known_yn))
+        section_words_list_M.push(Number(item.memorize_known_yn))
+        section_words_list_R.push(Number(item.recall_known_yn))
         i++
 
     });
-    clear_list = main_list;
-    let sections_num = main_list.length
-    chrome.storage.session.set({ "clearList": main_list, "title": title, "wordsJson": words_json});
+    
+    let sections_num = main_list_M.length
+    console.debug(main_list_R, words_json)
+    chrome.storage.session.set({ "clearList_M": main_list_M, "clearList_R": main_list_R, "title": title, "wordsJson": words_json});
     return [title, words_num, sections_num];
 }
 
 
 function setMemorize() {
-    chrome.runtime.sendMessage(
-        { action: "ready" }
-    );
     let first_index = clear_list.indexOf(false)
     chrome.storage.session.set({ frist: first_index + 1 });
     if (first_index+1 > last_sectsion) {
@@ -155,17 +151,26 @@ function setMemorize() {
             { action: "error", code: 0 }
         );
     } else {
+        chrome.runtime.sendMessage(
+            { action: "ready" }
+        );
         $("#tab_set_section").children(`div:eq(${first_index})`).find("a:eq(2)")[0].click();
     }
 }
 
 function setRecall() {
-    chrome.runtime.sendMessage(
-        { action: "ready" }
-    );
     let first_index = clear_list.indexOf(false)
     chrome.storage.session.set({ frist: first_index + 1 });
-    $("#tab_set_section").children(`div:eq(${first_index})`).find("a:eq(3)")[0].click();
+    if (first_index+1 > last_sectsion) {
+        chrome.runtime.sendMessage(
+            { action: "error", code: 0 }
+        );
+    } else {
+        chrome.runtime.sendMessage(
+            { action: "ready" }
+        );
+        $("#tab_set_section").children(`div:eq(${first_index})`).find("a:eq(3)")[0].click();
+    }
 }
 
 function checkNextSection(criterionSection) {
@@ -173,7 +178,7 @@ function checkNextSection(criterionSection) {
         if (clear_list[criterionSection] == true) {
             return checkNextSection(criterionSection + 1);
         } else {
-            console.log("Next Section ", criterionSection + 1)
+            console.debug("Next Section ", criterionSection + 1)
             return criterionSection + 1;
         }
     }
@@ -192,6 +197,7 @@ function countDown(frist) {
             $start_btn[0].click();
             $start_btn.css("pointer-events", "auto");
             $start_btn.text(text);
+            $start_btn.attr("style", "display: none !important");
             clearInterval(count_down);
         }
         _time--;
@@ -201,7 +207,7 @@ function countDown(frist) {
 function startMemorize(frist) {
 
     current_section = frist ? frist_section : current_section;
-    console.log("Current Section ", current_section)
+    console.debug("Current Section ", current_section)
     if (frist) $(".btn-know-box").parent().attr("class", "study-bottom");
     countDown(frist);
 
@@ -220,7 +226,7 @@ function startMemorize(frist) {
                     setTimeout(() => {
                         $know_btn_box.attr("class", "study-bottom down");
                         $know_btn[0].click();
-                        console.log("clear");
+                        console.debug("clear");
                     }, 20 + delay);
                 }
 
@@ -228,18 +234,18 @@ function startMemorize(frist) {
                     if ($known_count.text() != known_count) {
                         known_count = $known_count.text();
                         if ($known_count.text() == $total_count.text()) {
-                            console.log("finish");
+                            console.debug("finish");
                             _observer.disconnect();
 
                             setTimeout(() => {
                                 let next_section = checkNextSection(current_section);
-                                console.log(checkNextSection(current_section), last_sectsion)
+                                console.debug(checkNextSection(current_section), last_sectsion)
                                 if (next_section <= last_sectsion) {
                                     startMemorize(false);
                                     console.log("Go next ", next_section)
                                     current_section = next_section;
                                 } else {
-                                    console.log("fail")
+                                    console.debug("fail")
                                     process_state = 2;
                                     chrome.runtime.sendMessage(
                                         { action: "get_state", state: process_state }
@@ -267,12 +273,11 @@ function startMemorize(frist) {
 
 function findRecallAnswer(word) {
     words_json.forEach((item, index) => {
-        if(item.front === word) {
-            let $answer_btns = $study_box.children(".CardItem.current.showing").children(".card-quest");
+        if(item.front.replace(/(\s*)/g, "") === word.replace(/(\s*)/g, "")) {
+            let $answer_btns = $card_current.children(".card-quest");
             for(let i=0;i<$answer_btns.children().length-1;i++) {
                 $answer_btn = $answer_btns.children(`:eq(${i})`);
-                if ($answer_btn.children(".card-quest-list").children().text() === item.back) {
-                    console.log($answer_btn)
+                if ($answer_btn.children(".card-quest-list").children().text().replace(/(\s*)/g, "") === item.back.replace(/(\s*)/g, "")) {
                     $answer_btn.trigger("click");
                 }
             }
@@ -282,28 +287,90 @@ function findRecallAnswer(word) {
 
 function startRecall(frist) {
 
+    let word;
+    let i = 0
+    let j = 0
     current_section = frist ? frist_section : current_section;
-    console.log("Current Section ", current_section);
+    console.debug("Current Section ", current_section);
     countDown(frist);
 
     setTimeout(() => {
+
         let known_count = 0
+        const regex = /[^0-9.]/g;
+        $card_current = $study_box.children("[class='CardItem current showing']")
+        let $card_cover = $card_current.children(".card-cover");
 
-        let target;
-        $card_cover = $study_box.children(".CardItem.next").children(".card-cover");
-        // $card_cover.attr("class" , "card-cover");
-        console.log($card_cover);
-        target = $card_cover[0];
-        // findRecallAnswer($study_box.find(".normal-body").text())
+        word = $card_current.find(".normal-body").text();
+        findRecallAnswer(word);
 
-        let observer = new MutationObserver((mutations, _observer) => {
+        let cardCover_observer = new MutationObserver((mutations, _observer) => {
             mutations.forEach(mutation => {
-                console.log(2, "!!!", mutation)
-                if (mutation.oldValue === "card-cover") {
-                    setTimeout(() => {
-                        findRecallAnswer($study_box.find(".normal-body").text())
-                        // console.log(2, "!!!", mutation)
-                    }, 20 + delay);
+                if (mutation.attributeName === "style" && mutation.oldValue != null) {
+                    let result = mutation.oldValue.replace(regex, "");
+                    let number = parseFloat(result);
+                    if(number>390) {
+                        j++
+                        if(j == 1) {
+                            setTimeout(() => {
+                                console.debug(number, $card_current, word);
+                                findRecallAnswer(word);
+                                cardItem_observer.observe($card_current[0], config);
+                                i = 0;
+                                _observer.disconnect();
+                            }, 50+delay);
+                        }
+                    }
+                }
+            });
+        });
+        let cardItem_observer = new MutationObserver((mutations, _observer) => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === "class") {
+                        $study_box = $(".study-content > .study-body")
+                        $card_current = $study_box.children(".CardItem.current.showing");
+                        if ($card_current.attr("class") === "CardItem current showing") {
+                            i++
+                            if(i==1) {
+                                word = $card_current.find(".normal-body").text();
+                                $card_cover = $card_current.children(".card-cover");
+                                j = 0;
+                                cardCover_observer.observe($card_cover[0], config);
+                            }
+                            _observer.disconnect();
+                        }
+                }
+            });
+        });
+
+        let known_observer = new MutationObserver((mutations, _observer) => {
+            mutations.forEach(mutation => {
+                if (mutation.target == $known_count[0]) {
+                    if ($known_count.text() != known_count) {
+                        known_count = $known_count.text();
+                        if ($known_count.text() == $total_count.text()) {
+                            console.debug("finish");
+                            _observer.disconnect();
+                            cardItem_observer.disconnect();
+                            cardCover_observer.disconnect();
+                            setTimeout(() => {
+                                let next_section = checkNextSection(current_section);
+                                console.debug(checkNextSection(current_section), last_sectsion)
+                                if (next_section <= last_sectsion) {
+                                    startRecall(false);
+                                    console.debug("Go next ", next_section)
+                                    current_section = next_section;
+                                } else {
+                                    console.debug("fail")
+                                    process_state = 2;
+                                    chrome.runtime.sendMessage(
+                                        { action: "get_state", state: process_state }
+                                    );
+                                    return 0;
+                                }
+                            }, 1000);
+                        }
+                    }
                 }
             });
         });
@@ -314,8 +381,9 @@ function startRecall(frist) {
             childList: true
         };
 
-        observer.observe(target, config);
-        // observer.observe($known_count[0], config);
-    }, 6000);
+        // cardCover_observer.observe($card_cover[0], config);
+        known_observer.observe($known_count[0], config);
+        cardItem_observer.observe($card_current[0], config);
+    }, 6500);
 
 }

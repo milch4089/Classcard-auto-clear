@@ -2,18 +2,9 @@ chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONT
 
 const SET_URL = "https://www.classcard.net/set/"
 const MEMORIZE_URL = "https://www.classcard.net/Memorize/"
-const STATE_MESSAGE = {run: "암기 자동화가 실행 중 입니다", finish: "암기 자동화가 종료되었습니다"}
-const ERROR_MESSAGE = { 
-    not_login: "로그인이 필요합니다", 
-    not_classCard: "단어를 찾을 수 없습니다", 
-    not_wordSet: "단어세트만 가능합니다", 
-    not_findInfo: "세트정보를 불러올 수 없습니다.</br>새로고침을 해주세요.",
-    wrong_endSection: "입력한 종료구간이 존재하지 않습니다",
-    cleared_already: "이미 암기가 완료된 구간들 입니다",
-    exceed_maxSection: "종료구간이 마지막 구간보다 큽니다"
-}
-let tab_id;
-let sections_num;
+const RECALL_URL = "https://www.classcard.net/Recall/"
+
+let tab_id, sections_num;
 let $title = $("#title");
 let $state_text = $("#state-text");
 let $memorize_btn = $("#memo-btn");
@@ -50,7 +41,7 @@ function setPopup(tab) {
                             $("#sections-num").text(response[2])
                             sections_num = response[2]
                             $memorize_btn.attr("disabled", false);
-                            // $recall_btn.attr("disabled", false);
+                            $recall_btn.attr("disabled", false);
                         }
                     } catch {
                         // showStateText(ERROR_MESSAGE.not_findInfo);
@@ -58,23 +49,29 @@ function setPopup(tab) {
                     }
                 }
             );
-        } else if (tab.url.startsWith(MEMORIZE_URL)) {
+        } else if (tab.url.startsWith(MEMORIZE_URL) || tab.url.startsWith(RECALL_URL)) {
             chrome.tabs.sendMessage(
                 tab.id,
                 { action: "checkProcessState" },
                 (response) => {
                     console.log(response, " !!!")
-                    switch (response[0]) {
+                    switch (response) {
                         case 0:
                             showStateText(ERROR_MESSAGE.not_classCard)
                             break;
                         case 1:
-                            showStateText(STATE_MESSAGE.run)
-                            $title.text(response[1]);
+                            showStateText(tab.url.startsWith(MEMORIZE_URL) ? STATE_MESSAGE.m_run : STATE_MESSAGE.r_run)
+                            chrome.storage.session.get(["title", "last"], (result) => {
+                                $title.text(result.title);
+                                $("#end").val(result.last);
+                            });
                             break;
                         case 2:
-                            showStateText(STATE_MESSAGE.finish)
-                            $title.text(response[1]);
+                            showStateText(tab.url.startsWith(MEMORIZE_URL) ? STATE_MESSAGE.m_finish : STATE_MESSAGE.r_finish)
+                            chrome.storage.session.get(["title", "last"], (result) => {
+                                $title.text(result.title);
+                                $("#end").val(result.last);
+                            });
                             break;
                     }
                 }
@@ -89,11 +86,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "getState" && sender.tab.id == tab_id) {
         switch (request.state) {
             case 1:
-                showStateText(STATE_MESSAGE.run)
+                showStateText(sender.tab.url.startsWith(MEMORIZE_URL) ? STATE_MESSAGE.m_run : STATE_MESSAGE.r_run)
                 $title.text(request._title);
                 break;
             case 2:
-                showStateText(STATE_MESSAGE.finish)
+                showStateText(sender.tab.url.startsWith(MEMORIZE_URL) ? STATE_MESSAGE.m_finish : STATE_MESSAGE.r_finish)
                 $title.text(request._title);
                 break;
         }
@@ -121,19 +118,26 @@ function showStateText(msg, unblock_time=0) {
             $info_text.css("display", "block");
             $state_text.css("display", "none");
             $input.attr("disabled", false);
-
-            // $recall_btn.attr("disabled", false);
-            $memorize_btn.attr("disabled", false);
-
+            $("button").attr("disabled", false);
         }, unblock_time);
     }
 }
 
+$(document).ready(function() {			
+    $("input").keyup(function() {
+        var replace_text = $(this).val().replace(/[^-0-9]/g, '');
+        $(this).val(replace_text);
+    });
+});
+
 $memorize_btn.click(() => {
 
-    $memorize_btn.attr("disabled", true);
+    $("button").attr("disabled", true);
     if (Number($("#end").val()) > sections_num) {
-        showStateText(ERROR_MESSAGE.exceed_maxSection, 2400)
+        showStateText(ERROR_MESSAGE.wrong_endSection, 2400)
+    } else if (Number($("#end").val()) <= 0 ) {
+        $("#end").val(0);
+        showStateText(ERROR_MESSAGE.wrong_endSection, 2400)
     } else {
         chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
 
@@ -148,13 +152,20 @@ $memorize_btn.click(() => {
 
 $recall_btn.click(() => {
 
-    $recall_btn.attr("disabled", true);
-    chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
+    $("button").attr("disabled", true);
+    if (Number($("#end").val()) > sections_num) {
+        showStateText(ERROR_MESSAGE.wrong_endSection, 2400)
+    } else if (Number($("#end").val()) <= 0 ) {
+        $("#end").val(0);
+        showStateText(ERROR_MESSAGE.wrong_endSection, 2400)
+    } else {
+        chrome.storage.session.set({ last: Number($("#end").val()), delay: Number($("#delay").val()) });
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(
-            tabs[0].id, { action: "setRecall" }
-        );
-    });
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(
+                tabs[0].id, { action: "setRecall" }
+            );
+        });
+    }
 
 });
