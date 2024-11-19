@@ -11,8 +11,8 @@
 
 ## • 설치방법
   
-**자동 설치 (v1.1)**
-- [웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다. (리콜기능이 없는 초기 버전입니다)
+**자동 설치 (v2.0)**
+- [웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다.
 
 <br>
 
