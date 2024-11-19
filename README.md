@@ -1,4 +1,4 @@
-# ClassCard auto
+# ClassCard auto (개발 중단)
 
 ## • 개요
 귀찮은 클래스카드의 암기, 리콜을 자동으로 수행해주는 크롬 확장프로그램 입니다
@@ -12,7 +12,7 @@
 ## • 설치방법
   
 **자동 설치 (v2.0)**
-- [웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다.
+- ~~[웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다.~~
 
 <br>
 
