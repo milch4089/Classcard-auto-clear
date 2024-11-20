@@ -1,6 +1,6 @@
 {
     "name": "ClassCard Auto",
-    "version": "2.0",
+    "version": "2.1",
     "description": "클래스카드의 암기와 리콜을 자동으로 해주는 확장 프로그램입니다.",
     "background": {
       "service_worker": "js/background.js"

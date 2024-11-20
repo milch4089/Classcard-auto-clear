@@ -202,72 +202,60 @@ function countDown(frist) {
         }
         _time--;
     }, 1000);
+
+
 }
 
+let start_delay = 6000
 function startMemorize(frist) {
 
     current_section = frist ? frist_section : current_section;
     console.debug("Current Section ", current_section)
-    if (frist) $(".btn-know-box").parent().attr("class", "study-bottom");
-    countDown(frist);
+    if (frist) countDown(frist);
 
     setTimeout(() => {
-        let known_count = 0
+        $("<div id='block_panel'></div>").prependTo("#wrapper-learn")
+    }, 5000);
+  
+    setTimeout(() => {
 
-        let target = $know_btn_box[0];
+        let know_btns = $(".btn_kown_o");
+        let cards_num = know_btns.length
+        const timer = ms => new Promise(res => setTimeout(res, ms))
 
-        $know_btn_box.attr("class", "study-bottom down");
-        $know_btn[0].click();
+        async function load () {
+            for (var i = 0; i < cards_num; i++) {
+                console.debug(i);
+                know_btns[i].click()
+                await timer(delay);
+            }
+            setTimeout(() => {
+                start_delay = 3000
+                let next_section = checkNextSection(current_section);
+                console.debug(checkNextSection(current_section), last_sectsion)
+                if (next_section <= last_sectsion) {
+                    startMemorize(false);
+                    $(".btn-study-end-next-section2")[0].click()
+                    console.log("Go next ", next_section)
+                    current_section = next_section;
+                } else {
+                    console.debug("fail")
+                    $(".btn-top-menu:eq(0) > a")[0].click()
+                    $("div").remove("#block_panel")
+                    process_state = 2;
+                    chrome.runtime.sendMessage(
+                        { action: "get_state", state: process_state }
+                    );
 
-        let observer = new MutationObserver((mutations, _observer) => {
-            mutations.forEach(mutation => {
-
-                if ($know_btn_box.attr("class") === "study-bottom") {
                     setTimeout(() => {
-                        $know_btn_box.attr("class", "study-bottom down");
-                        $know_btn[0].click();
-                        console.debug("clear");
-                    }, 20 + delay);
+                        alert("암기 자동화가 종료되었습니다.")
+                    }, 900);
+                    return 0;
                 }
-
-                else if (mutation.target == $known_count[0]) {
-                    if ($known_count.text() != known_count) {
-                        known_count = $known_count.text();
-                        if ($known_count.text() == $total_count.text()) {
-                            console.debug("finish");
-                            _observer.disconnect();
-
-                            setTimeout(() => {
-                                let next_section = checkNextSection(current_section);
-                                console.debug(checkNextSection(current_section), last_sectsion)
-                                if (next_section <= last_sectsion) {
-                                    startMemorize(false);
-                                    console.log("Go next ", next_section)
-                                    current_section = next_section;
-                                } else {
-                                    console.debug("fail")
-                                    process_state = 2;
-                                    chrome.runtime.sendMessage(
-                                        { action: "get_state", state: process_state }
-                                    );
-                                    return 0;
-                                }
-                            }, 1000);
-                        }
-                    }
-                }
-            });
-        });
-
-        var config = {
-            attributes: true,
-            attributeOldValue: true,
-            childList: true
-        };
-
-        observer.observe(target, config);
-        observer.observe($known_count[0], config);
-    }, 6000);
+            }, 1000);
+        }
+        load();
+    }, start_delay);
 
 }
 

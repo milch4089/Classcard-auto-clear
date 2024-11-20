@@ -41,7 +41,7 @@ function setPopup(tab) {
                             $("#sections-num").text(response[2])
                             sections_num = response[2]
                             $memorize_btn.attr("disabled", false);
-                            $recall_btn.attr("disabled", false);
+                            // $recall_btn.attr("disabled", false);
                         }
                     } catch {
                         // showStateText(ERROR_MESSAGE.not_findInfo);
@@ -118,7 +118,7 @@ function showStateText(msg, unblock_time=0) {
             $info_text.css("display", "block");
             $state_text.css("display", "none");
             $input.attr("disabled", false);
-            $("button").attr("disabled", false);
+            $memorize_btn.attr("disabled", false);
         }, unblock_time);
     }
 }
