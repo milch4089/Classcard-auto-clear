@@ -11,12 +11,12 @@
 
 ## • 설치방법
   
-**자동 설치 (v2.0)**
+**자동 설치 (v2.1)**
 - [웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다.
 
 <br>
 
-**수동 설치 (v2.0)**
+**수동 설치 (v2.1)**
 
 1. 확장프로그램 파일을 [다운로드](https://github.com/milch4089/Classcard-auto-clear/releases/download/v2.0/Classcard-auto-clear.zip)한 뒤 파일의 압축을 해제합니다.
 2. `확장 프로그램 관리 (chrome://extensions)`로 이동합니다.
