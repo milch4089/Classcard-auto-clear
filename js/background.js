@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (changeInfo.title && tabId == sender.tab.id) {
                 if (tab.url.startsWith(MEMORIZE_URL)||tab.url.startsWith(RECALL_URL)) {
                     chrome.scripting.insertCSS({
-                        files: ["block.css"],
+                        files: ["css/block.css"],
                         target: { tabId: tab.id }
                     });
                 }
@@ -35,4 +35,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
 
     }
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    chrome.storage.local.get("ischecked", (result) => {
+        if (tab.url.startsWith(RECALL_URL)&&result.ischecked) {
+            console.log(result.ischecked)
+            chrome.scripting.insertCSS({
+                files: ["css/recall.css"],
+                target: { tabId: tab.id }
+            });
+        }
+      });
 });

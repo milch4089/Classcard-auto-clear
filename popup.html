@@ -1,16 +1,12 @@
 <html>
 <meta charset=utf-8>
 <head>
-    <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="css/popup.css" />
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="js/ThirdParty/jquery-3.7.1.slim.min.js"></script>
     <script src="messages.js"></script>
 </head>
 <body>
-    <div class="error-page pages">
-        <p></p>
-    </div>
-
     <div class="main-page">
         <div class="title-box"><p id="title">-</p></div>
         <div class="info-box">
@@ -20,21 +16,29 @@
             <p class="info-text">|</p>
             <p class="info-text"><span id="sections-num">-</span>구간</p>
         </div>
-
+    <div class="inner-wrap">
         <div class="setting-box">
             <div class="input-wrap">
+                <p>리콜 가이드</p>
+                <input type="checkbox" id="toggle-slider">
+                <label for="toggle-slider">on/off</label>
+            </div>
+            <div class="line"></div>
+            <div class="input-wrap">
                 <p>종료구간</p>
-                <input type="number" min="1" value="1" placeholder="" id="end">
+                <input class="num-input" type="number" min="1" value="1" placeholder="" id="end">
             </div>
             <div class="input-wrap delay-set">
                 <p>딜레이 (ms)</p>
-                <input type="number" min="0" value="2000" placeholder="" id="delay">
+                <input class="num-input" type="number" min="0" value="2000" placeholder="" id="delay">
             </div>
         </div>
+        
         <div class="btn-box">
             <button disabled="disabled" id="memo-btn">암기</button>
-            <button disabled="disabled" id="recall-btn">리콜</button>
+            <!-- <button disabled="disabled" id="recall-btn">리콜</button> -->
         </div>
+    </div>
     </div>
 <script src="js/popup.js"></script>
 </body>

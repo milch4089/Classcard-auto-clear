@@ -10,7 +10,7 @@ let $state_text = $("#state-text");
 let $memorize_btn = $("#memo-btn");
 let $recall_btn = $("#recall-btn");
 let $info_text = $(".info-text");
-let $input = $("input");
+let $input = $(".num-input");
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     tab_id = tabs[0].id
@@ -25,6 +25,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     console.log(msg); 
     sendResponse(); 
   });
+
+chrome.storage.local.get("ischecked", (result) => {
+    if (result.ischecked) {
+        $('#toggle-slider').prop('checked', true);
+    }
+});
 
 function setPopup(tab) {
     if (tab.id == tab_id && tab.status === "complete") {
@@ -129,6 +135,12 @@ $(document).ready(function() {
         $(this).val(replace_text);
     });
 });
+
+
+$('#toggle-slider').on('change', function() {
+    chrome.storage.local.set({"ischecked" : $('#toggle-slider').is(':checked')});
+  });
+
 
 $memorize_btn.click(() => {
 

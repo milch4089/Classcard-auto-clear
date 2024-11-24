@@ -224,7 +224,7 @@ function startMemorize(frist) {
         const timer = ms => new Promise(res => setTimeout(res, ms))
 
         async function load () {
-            for (var i = 0; i < cards_num; i++) {
+            for (var i = 0; i < cards_num-1; i++) {
                 console.debug(i);
                 know_btns[i].click()
                 await timer(delay);
