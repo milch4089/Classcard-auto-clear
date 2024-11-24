@@ -173,7 +173,7 @@ input:disabled {
 }
 
 .btn-box button{
-    height: 30px;
+    height: 32px;
     width: 100%;
     color: white;
     border-color: #78d024;
@@ -197,7 +197,7 @@ input:disabled {
 }
 
 #memo-btn {
-    margin: 7px 50px 12px 50px;
+    margin: 7px 54px 12px 54px;
 }
 #recall-btn {
     margin: 10px 12px 10px 7px;
