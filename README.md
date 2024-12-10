@@ -16,7 +16,7 @@
 
 ## • 설치방법
   
-**자동 설치 (v2.1)**
+**자동 설치 (v2.2)**
 - [웹스토어](https://chromewebstore.google.com/detail/classcard-auto/ddhailnbodajnflekpkmkpglocmendfp)를 통해 설치합니다.
 
 <br>
